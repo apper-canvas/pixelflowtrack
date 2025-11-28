@@ -1,6 +1,5 @@
 import { getApperClient } from "@/services/apperClient";
 import { toast } from "react-toastify";
-import React from "react";
 
 export const taskService = {
   async getAll() {
@@ -285,11 +284,10 @@ export const taskService = {
       }
 
       return false
-    } catch (error) {
+} catch (error) {
       console.error(`Error deleting task ${id}:`, error?.response?.data?.message || error)
       toast.error("Failed to delete task")
       return false
-return false
     }
   }
 }
