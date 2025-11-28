@@ -11,7 +11,7 @@ const TaskList = ({ tasks, onUpdateTask, onDeleteTask }) => {
       <AnimatePresence mode="popLayout">
         {tasks.map((task, index) => (
           <motion.div
-            key={task.Id}
+key={task.Id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ 
               opacity: 1, 

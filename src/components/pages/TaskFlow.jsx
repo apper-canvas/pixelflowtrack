@@ -22,7 +22,7 @@ const TaskFlow = () => {
     try {
       setError("")
       setLoading(true)
-      const data = await taskService.getAll()
+const data = await taskService.getAll()
       setTasks(data)
     } catch (err) {
       setError("Failed to load tasks. Please try again.")
@@ -38,7 +38,7 @@ const TaskFlow = () => {
 
   const handleAddTask = async (taskData) => {
     try {
-      const newTask = await taskService.create(taskData)
+const newTask = await taskService.create(taskData)
       setTasks(prev => [newTask, ...prev])
       toast.success("Task added successfully!")
     } catch (err) {
@@ -49,10 +49,10 @@ const TaskFlow = () => {
 
   const handleUpdateTask = async (id, updates) => {
     try {
-      const updatedTask = await taskService.update(id, updates)
+const updatedTask = await taskService.update(id, updates)
       setTasks(prev => prev.map(task => task.Id === id ? updatedTask : task))
       
-      if (updates.status === "completed") {
+if (updates.status === "completed") {
         setShowCompletion(true)
         setTimeout(() => setShowCompletion(false), 1000)
         toast.success("Task completed! Great job! 🎉")
@@ -67,7 +67,7 @@ const TaskFlow = () => {
 
   const handleDeleteTask = async (id) => {
     try {
-      await taskService.delete(id)
+await taskService.delete(id)
       setTasks(prev => prev.filter(task => task.Id !== id))
       toast.success("Task deleted successfully")
     } catch (err) {
@@ -81,13 +81,13 @@ const TaskFlow = () => {
 
     // Apply filter
     if (filter === "active") {
-      filtered = tasks.filter(task => task.status === "active")
+filtered = tasks.filter(task => task.status === "active")
     } else if (filter === "completed") {
       filtered = tasks.filter(task => task.status === "completed")
     }
 
     // Apply sort
-    return filtered.sort((a, b) => {
+return filtered.sort((a, b) => {
       if (sortBy === "priority") {
         const priorityOrder = { high: 3, medium: 2, low: 1 }
         return priorityOrder[b.priority] - priorityOrder[a.priority]
@@ -99,7 +99,7 @@ const TaskFlow = () => {
   }
 
   const displayTasks = filteredAndSortedTasks()
-  const taskStats = {
+const taskStats = {
     total: tasks.length,
     active: tasks.filter(t => t.status === "active").length,
     completed: tasks.filter(t => t.status === "completed").length,

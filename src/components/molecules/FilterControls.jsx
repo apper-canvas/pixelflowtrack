@@ -3,7 +3,7 @@ import { cn } from "@/utils/cn"
 
 const FilterControls = ({ currentFilter, onFilterChange, taskStats }) => {
   const filters = [
-    { id: "all", label: "All", count: taskStats.total },
+{ id: "all", label: "All", count: taskStats.total },
     { id: "active", label: "Active", count: taskStats.active },
     { id: "completed", label: "Completed", count: taskStats.completed },
   ]
