@@ -5,14 +5,14 @@ import Input from "@/components/atoms/Input"
 import Select from "@/components/atoms/Select"
 import Textarea from "@/components/atoms/Textarea"
 import ApperIcon from "@/components/ApperIcon"
-
+import ApperFileFieldComponent from "@/components/atoms/ApperFileFieldComponent"
 const TaskForm = ({ onAddTask }) => {
-  const [title, setTitle] = useState("")
+const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [priority, setPriority] = useState("medium")
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const [uploadedFiles, setUploadedFiles] = useState([])
   const validateForm = () => {
     const newErrors = {}
     
@@ -34,19 +34,41 @@ const TaskForm = ({ onAddTask }) => {
     setIsSubmitting(true)
     
     try {
-await onAddTask({
+// Retrieve files using SDK method
+      let files = [];
+      if (window.ApperSDK?.ApperFileUploader) {
+        try {
+          files = await window.ApperSDK.ApperFileUploader.FileField.getFiles('images_c') || uploadedFiles;
+        } catch (error) {
+          console.error('Error retrieving files:', error);
+          files = uploadedFiles; // Fallback to state
+        }
+      }
+
+      await onAddTask({
         title: title.trim(),
         description: description.trim(),
         priority,
         status: "active",
-        tags: ""
+        tags: "",
+        images_c: files
       })
       
       // Reset form
-      setTitle("")
+setTitle("")
       setDescription("")
       setPriority("medium")
       setErrors({})
+      setUploadedFiles([])
+      
+      // Clear the file field after successful submission
+      if (window.ApperSDK?.ApperFileUploader) {
+        try {
+          window.ApperSDK.ApperFileUploader.FileField.clearField('images_c');
+        } catch (error) {
+          console.error('Error clearing file field:', error);
+        }
+      }
     } catch (error) {
       console.error("Error adding task:", error)
     } finally {
@@ -145,6 +167,25 @@ await onAddTask({
                 />
               </div>
             </div>
+          </div>
+{/* Images Upload Section */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-700">
+              Images
+              <span className="text-slate-500 text-xs ml-2">(Optional)</span>
+            </label>
+            <ApperFileFieldComponent
+              elementId="images_c"
+              config={{
+                fieldKey: 'images_c',
+                fieldName: 'images_c',
+                tableName: 'task_c',
+                apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+                apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY,
+                existingFiles: uploadedFiles,
+                fileCount: uploadedFiles.length
+              }}
+            />
           </div>
 
           <div className="flex justify-end pt-4">

@@ -10,7 +10,7 @@ export const taskService = {
       }
 
       const params = {
-        fields: [
+fields: [
           {"field": {"Name": "Id"}},
           {"field": {"Name": "Name"}}, 
           {"field": {"Name": "Tags"}},
@@ -18,6 +18,7 @@ export const taskService = {
           {"field": {"Name": "description_c"}},
           {"field": {"Name": "priority_c"}},
           {"field": {"Name": "status_c"}},
+          {"field": {"Name": "images_c"}},
           {"field": {"Name": "CreatedOn"}},
           {"field": {"Name": "ModifiedOn"}}
         ],
@@ -33,13 +34,14 @@ export const taskService = {
       }
 
       // Transform data to match UI expectations
-      return response.data.map(task => ({
+return response.data.map(task => ({
         Id: task.Id,
         title: task.title_c || task.Name || '',
         description: task.description_c || '',
         priority: task.priority_c || 'medium',
         status: task.status_c || 'active',
         tags: task.Tags || '',
+        images: task.images_c || [],
         createdAt: task.CreatedOn,
         completedAt: task.status_c === 'completed' ? task.ModifiedOn : null
       }))
@@ -58,7 +60,7 @@ export const taskService = {
       }
 
       const params = {
-        fields: [
+fields: [
           {"field": {"Name": "Id"}},
           {"field": {"Name": "Name"}}, 
           {"field": {"Name": "Tags"}},
@@ -66,6 +68,7 @@ export const taskService = {
           {"field": {"Name": "description_c"}},
           {"field": {"Name": "priority_c"}},
           {"field": {"Name": "status_c"}},
+          {"field": {"Name": "images_c"}},
           {"field": {"Name": "CreatedOn"}},
           {"field": {"Name": "ModifiedOn"}}
         ]
@@ -77,7 +80,7 @@ export const taskService = {
         throw new Error(`Task with Id ${id} not found`)
       }
 
-      // Transform data to match UI expectations
+// Transform data to match UI expectations
       const task = response.data
       return {
         Id: task.Id,
@@ -86,6 +89,7 @@ export const taskService = {
         priority: task.priority_c || 'medium',
         status: task.status_c || 'active',
         tags: task.Tags || '',
+        images: task.images_c || [],
         createdAt: task.CreatedOn,
         completedAt: task.status_c === 'completed' ? task.ModifiedOn : null
       }
@@ -96,11 +100,22 @@ export const taskService = {
     }
   },
 
-  async create(taskData) {
+async create(taskData) {
     try {
       const apperClient = getApperClient()
       if (!apperClient) {
         throw new Error("ApperClient not initialized")
+      }
+
+      // Handle file data conversion if present
+      let convertedFiles = [];
+      if (taskData.images_c && taskData.images_c.length > 0 && window.ApperSDK?.ApperFileUploader) {
+        try {
+          convertedFiles = window.ApperSDK.ApperFileUploader.toCreateFormat(taskData.images_c);
+        } catch (error) {
+          console.error('Error converting files for creation:', error);
+          // Continue with empty files array if conversion fails
+        }
       }
 
       const params = {
@@ -110,7 +125,8 @@ export const taskService = {
           title_c: taskData.title || taskData.title_c || '',
           description_c: taskData.description || taskData.description_c || '',
           priority_c: taskData.priority || taskData.priority_c || 'medium',
-          status_c: taskData.status || taskData.status_c || 'active'
+          status_c: taskData.status || taskData.status_c || 'active',
+          ...(convertedFiles.length > 0 && { images_c: convertedFiles })
         }]
       }
 
@@ -141,13 +157,14 @@ export const taskService = {
           toast.success("Task created successfully")
           
           // Transform response to match UI expectations  
-          return {
+return {
             Id: newTask.Id,
             title: newTask.title_c || newTask.Name || '',
             description: newTask.description_c || '',
             priority: newTask.priority_c || 'medium',
             status: newTask.status_c || 'active',
             tags: newTask.Tags || '',
+            images: newTask.images_c || [],
             createdAt: newTask.CreatedOn,
             completedAt: newTask.status_c === 'completed' ? newTask.ModifiedOn : null
           }
